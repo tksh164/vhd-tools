@@ -19,8 +19,7 @@ $WarningPreference = [Management.Automation.ActionPreference]::Continue
 $VerbosePreference = [Management.Automation.ActionPreference]::Continue
 $ProgressPreference = [Management.Automation.ActionPreference]::SilentlyContinue
 
-function Mount-IsoFile
-{
+function Mount-IsoFile {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -40,8 +39,7 @@ function Mount-IsoFile
     }
 }
 
-function Dismount-IsoFile
-{
+function Dismount-IsoFile {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -54,8 +52,7 @@ function Dismount-IsoFile
     Dismount-DiskImage -StorageType ISO -ImagePath $IsoFilePath | Out-Null
 }
 
-function Resolve-WindowsImageFilePath
-{
+function Resolve-WindowsImageFilePath {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -69,8 +66,7 @@ function Resolve-WindowsImageFilePath
     return $wimFilePath
 }
 
-function Get-WimFileInfo
-{
+function Get-WimFileInfo {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -92,8 +88,7 @@ function Get-WimFileInfo
     return $windowsImage
 }
 
-function Add-DriveLetterToPartition
-{
+function Add-DriveLetterToPartition {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
@@ -106,8 +101,7 @@ function Add-DriveLetterToPartition
     do {
         $workingPartition | Add-PartitionAccessPath -AssignDriveLetter
         $workingPartition = $workingPartition | Get-Partition
-        if($workingPartition.DriveLetter -ne 0)
-        {
+        if($workingPartition.DriveLetter -ne 0) {
             $isDriveLetterAssigned = $true
             break
         }
@@ -124,8 +118,7 @@ function Add-DriveLetterToPartition
     return $workingPartition
 }
 
-function Set-VhdToBootable
-{
+function Set-VhdToBootable {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory = $true)]
