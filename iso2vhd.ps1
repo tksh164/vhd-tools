@@ -67,7 +67,7 @@ function Resolve-WindowsImageFilePath
     return $wimFilePath
 }
 
-function Test-WimFile
+function Get-WimFileInfo
 {
     [CmdletBinding()]
     param (
@@ -83,7 +83,11 @@ function Test-WimFile
     }
     
     $windowsImage = Get-WindowsImage -ImagePath $WimFilePath -Index $ImageIndex
-    return $windowsImage -ne $null
+    if ($windowsImage -eq $null) {
+        throw 'The specified Windows image "{0}" has not the image index {1}.' -f $WimFilePath, $ImageIndex
+    }
+
+    return $windowsImage
 }
 
 function Add-DriveLetterToPartition
@@ -159,6 +163,7 @@ function Set-VhdToBootable
 try {
     $stopWatch = [Diagnostics.Stopwatch]::StartNew()
 
+    Write-Host
     Write-Host 'ISO file: ' -ForegroundColor Cyan -NoNewline
     Write-Host ([IO.Path]::GetFileName($IsoFilePath))
 
@@ -167,11 +172,9 @@ try {
 
     $isoMountedDriveLetter = Mount-IsoFile -IsoFilePath $IsoFilePath
 
-    Write-Host 'Test the WIM file.' -ForegroundColor Cyan
+    Write-Host 'Windows image:' -ForegroundColor Cyan
     $wimFilePath = Resolve-WindowsImageFilePath -DriveLetter $isoMountedDriveLetter
-    if (-not (Test-WimFile -WimFilePath $wimFilePath -ImageIndex $ImageIndex)) {
-        throw 'The specified Windows image "{0}" has not the image index {1}.' -f $wimFilePath, $ImageIndex
-    }
+    Get-WimFileInfo -WimFilePath $wimFilePath -ImageIndex $ImageIndex | Format-List -Property 'ImageIndex', 'ImageName', 'Version', 'CreatedTime', 'ModifiedTime'
     
     Write-Host 'Create a new VHD file.' -ForegroundColor Cyan
     $params = @{
