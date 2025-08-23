@@ -112,7 +112,7 @@ function Add-DriveLetterToPartition
             break
         }
 
-        #'Could not assigna a drive letter. Try again.'
+        # Could not assign a drive letter. Try again.
         Get-Random -Minimum 1 -Maximum 5 | Start-Sleep
         $attempts++
     } while ($attempts -lt 20)
