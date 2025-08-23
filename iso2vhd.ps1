@@ -30,12 +30,14 @@ function Mount-IsoFile
     if (-not (Test-Path -PathType Leaf -LiteralPath $IsoFilePath)) {
         throw 'Cannot find the specified ISO file "{0}".' -f $IsoFilePath
     }
+
     $isoVolume = Mount-DiskImage -StorageType ISO -Access ReadOnly -ImagePath $IsoFilePath -PassThru | Get-Volume
-    Write-Host ('Mounted ISO file: "{0}".' -f $IsoFilePath) -ForegroundColor Cyan
-    Write-Host ('  DriveLetter: {0}' -f $isoVolume.DriveLetter)
-    Write-Host ('  FileSystemLabel: {0}' -f $isoVolume.FileSystemLabel)
-    Write-Host ('  Size: {0}' -f $isoVolume.Size)
-    return $isoVolume.DriveLetter
+    return [PSCustomObject] @{
+        IsoFilePath     = $IsoFilePath
+        DriveLetter     = $isoVolume.DriveLetter
+        FileSystemLabel = $isoVolume.FileSystemLabel
+        Size            = $isoVolume.Size
+    }
 }
 
 function Dismount-IsoFile
@@ -170,10 +172,12 @@ try {
     Write-Host 'VHD file: ' -ForegroundColor Cyan -NoNewline
     Write-Host ([IO.Path]::GetFileName($VhdFilePath))
 
-    $isoMountedDriveLetter = Mount-IsoFile -IsoFilePath $IsoFilePath
+    Write-Host 'Mounted ISO file:' -ForegroundColor Cyan
+    $mountedIso = Mount-IsoFile -IsoFilePath $IsoFilePath
+    $mountedIso | Format-List -Property 'IsoFilePath', 'DriveLetter', 'FileSystemLabel', 'Size'
 
     Write-Host 'Windows image:' -ForegroundColor Cyan
-    $wimFilePath = Resolve-WindowsImageFilePath -DriveLetter $isoMountedDriveLetter
+    $wimFilePath = Resolve-WindowsImageFilePath -DriveLetter $mountedIso.DriveLetter
     Get-WimFileInfo -WimFilePath $wimFilePath -ImageIndex $ImageIndex | Format-List -Property 'ImageIndex', 'ImageName', 'Version', 'CreatedTime', 'ModifiedTime'
     
     Write-Host 'Create a new VHD file.' -ForegroundColor Cyan
